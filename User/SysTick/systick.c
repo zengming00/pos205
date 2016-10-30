@@ -4,7 +4,7 @@
 * Hardware Environment: 
 * Build Environment   : RealView MDK-ARM  Version: 4.20
 * Version             : V1.0
-* By                  : 
+* By                  : a
 *
 *                                  (c) Copyright 2005-2011, WaveShare
 *                                       http://www.waveshare.net

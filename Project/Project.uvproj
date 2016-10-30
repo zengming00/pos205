@@ -446,6 +446,16 @@
               <FileType>1</FileType>
               <FilePath>..\User\24cxx.c</FilePath>
             </File>
+            <File>
+              <FileName>fmc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\fmc.c</FilePath>
+            </File>
+            <File>
+              <FileName>ir.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\ir.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1084,6 +1094,16 @@
               <FileName>24cxx.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\24cxx.c</FilePath>
+            </File>
+            <File>
+              <FileName>fmc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\fmc.c</FilePath>
+            </File>
+            <File>
+              <FileName>ir.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\ir.c</FilePath>
             </File>
           </Files>
         </Group>

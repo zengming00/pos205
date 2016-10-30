@@ -9,7 +9,9 @@ void keyInit(void){
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB |RCC_AHB1Periph_GPIOC |RCC_AHB1Periph_GPIOD, ENABLE);
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 
-//	GPIO_PinRemapConfig(GPIO_Remap_SWJ_Disable, ENABLE); //关闭调试 端口重新映射  使用仿真器调试时，不能用此语
+	//关闭jtag，使能SWD，可以用SWD模式调试
+//	GPIO_PinRemapConfig(GPIO_REMAP_SWJ_JTAGDISABLE, ENABLE);
+  //GPIO_PinRemapConfig(GPIO_Remap_SWJ_Disable, ENABLE); //关闭调试 端口重新映射  使用仿真器调试时，不能用此语
 }
 
 int keyScan(void) {

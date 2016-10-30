@@ -441,6 +441,16 @@
               <FileType>1</FileType>
               <FilePath>..\User\lcd12832.c</FilePath>
             </File>
+            <File>
+              <FileName>24cxx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\24cxx.c</FilePath>
+            </File>
+            <File>
+              <FileName>fmc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\fmc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -999,7 +1009,7 @@
             </VariousControls>
           </Aads>
           <LDads>
-            <umfTarg>0</umfTarg>
+            <umfTarg>1</umfTarg>
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
             <noStLib>0</noStLib>
@@ -1074,6 +1084,16 @@
               <FileName>lcd12832.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\lcd12832.c</FilePath>
+            </File>
+            <File>
+              <FileName>24cxx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\24cxx.c</FilePath>
+            </File>
+            <File>
+              <FileName>fmc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\fmc.c</FilePath>
             </File>
           </Files>
         </Group>
