@@ -396,10 +396,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>6</ColumnNumber>
+      <ColumnNumber>16</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>454</TopLine>
-      <CurrentLine>454</CurrentLine>
+      <TopLine>136</TopLine>
+      <CurrentLine>136</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\main.c</PathWithFileName>
       <FilenameWithoutPath>main.c</FilenameWithoutPath>
@@ -480,10 +480,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>2</ColumnNumber>
+      <ColumnNumber>5</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>1</TopLine>
+      <CurrentLine>6</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\key.c</PathWithFileName>
       <FilenameWithoutPath>key.c</FilenameWithoutPath>
@@ -578,10 +578,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>20</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>300</TopLine>
-      <CurrentLine>300</CurrentLine>
+      <TopLine>151</TopLine>
+      <CurrentLine>151</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\ir.c</PathWithFileName>
       <FilenameWithoutPath>ir.c</FilenameWithoutPath>
@@ -1107,7 +1107,7 @@
   </Group>
 
   <AlienFiles>
-    <PathWithFilename>E:\a电子\serprog-flashrom\205POS\205TEST\User\lcd12832.h</PathWithFilename>
+    <PathWithFilename>J:\a电子\serprog-flashrom\205POS\205TEST\User\lcd12832.h</PathWithFilename>
     <TopLine>1</TopLine>
     <CurrentLine>1</CurrentLine>
     <Constant>0</Constant>
@@ -1133,7 +1133,7 @@
   </AlienFiles>
 
   <AlienFiles>
-    <PathWithFilename>E:\a电子\serprog-flashrom\205POS\205TEST\User\ir.h</PathWithFilename>
+    <PathWithFilename>J:\a电子\serprog-flashrom\205POS\205TEST\User\ir.h</PathWithFilename>
     <TopLine>1</TopLine>
     <CurrentLine>6</CurrentLine>
     <Constant>0</Constant>
@@ -1159,7 +1159,7 @@
   </AlienFiles>
 
   <AlienFiles>
-    <PathWithFilename>E:\a电子\serprog-flashrom\205POS\205TEST\User\font.h</PathWithFilename>
+    <PathWithFilename>J:\a电子\serprog-flashrom\205POS\205TEST\User\font.h</PathWithFilename>
     <TopLine>1</TopLine>
     <CurrentLine>3</CurrentLine>
     <Constant>0</Constant>
@@ -1189,7 +1189,7 @@
     <ActiveMDIGroup>0</ActiveMDIGroup>
     <MDIGroup>
       <Size>100</Size>
-      <ActiveTab>3</ActiveTab>
+      <ActiveTab>1</ActiveTab>
       <Documents>
         <Doc>
           <Name>..\User\font.h</Name>
@@ -1199,9 +1199,9 @@
         </Doc>
         <Doc>
           <Name>..\User\ir.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>300</TopLine>
-          <CurrentLine>300</CurrentLine>
+          <ColumnNumber>20</ColumnNumber>
+          <TopLine>151</TopLine>
+          <CurrentLine>151</CurrentLine>
         </Doc>
         <Doc>
           <Name>..\User\ir.h</Name>
@@ -1211,9 +1211,9 @@
         </Doc>
         <Doc>
           <Name>..\User\main.c</Name>
-          <ColumnNumber>6</ColumnNumber>
-          <TopLine>454</TopLine>
-          <CurrentLine>454</CurrentLine>
+          <ColumnNumber>16</ColumnNumber>
+          <TopLine>136</TopLine>
+          <CurrentLine>136</CurrentLine>
         </Doc>
         <Doc>
           <Name>..\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_gpio.c</Name>
@@ -1238,6 +1238,12 @@
           <ColumnNumber>0</ColumnNumber>
           <TopLine>1</TopLine>
           <CurrentLine>1</CurrentLine>
+        </Doc>
+        <Doc>
+          <Name>..\User\key.c</Name>
+          <ColumnNumber>5</ColumnNumber>
+          <TopLine>1</TopLine>
+          <CurrentLine>6</CurrentLine>
         </Doc>
       </Documents>
     </MDIGroup>
