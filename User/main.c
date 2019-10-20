@@ -1,6 +1,7 @@
 #define NO_18B20 1
 #define NO_24cxx 1
 
+#include <stdio.h>
 #include "stm32f2xx.h"
 #include "usart.h"
 #include "systick.h"
@@ -113,58 +114,6 @@ void powerOn()
 	gpioOut(RCC_AHB1Periph_GPIOA, GPIOA, GPIO_Pin_2, 1);
 }
 
-void doKey(int key)
-{
-	switch (key)
-	{
-	case 10: //电源
-		break;
-	case 5: //	清除
-		powerOff();
-		break;
-	case 1: //	确认
-		// show(saohui, 6);
-		beep();
-		break;
-	case 0: //	蓝牙键
-#if !NO_18B20
-		printTemp();
-#endif
-		break;
-	case 14: //	取消
-		break;
-	case 3: //	0
-		break;
-	case 9: //	1
-		LedRed(0);
-		break;
-	case 4: //	2
-		LedRed(1);
-		break;
-	case 6: //	3
-		LedBlue(0);
-		break;
-	case 8: //	4
-		LedBlue(1);
-		break;
-	case 13: //	5
-		LedYellow(0);
-		break;
-	case 12: //	6
-		LedYellow(1);
-		break;
-	case 2: //	7
-		LedLcd(0);
-		break;
-	case 7: //	8
-		LedLcd(1);
-		break;
-	case 15: //	9
-		testLcd();
-		break;
-	}
-}
-
 void saveIr(int key)
 {
 	LCD_drawString(0, 20, "save           ", 12, 1, 1);
@@ -206,6 +155,9 @@ void saveIr(int key)
 	case KEY_OK:
 		IR_save(KEY_ADDR_12);
 		break;
+	case KEY_CLEAR:
+		IR_save(KEY_ADDR_13);
+		break;
 	default:
 		break;
 	}
@@ -214,7 +166,7 @@ void saveIr(int key)
 
 void sendIr(int key)
 {
-	LCD_drawString(0, 20, "send           ", 12, 1, 1);
+	LCD_drawString(0, 20, "sending...     ", 12, 1, 1);
 	switch (key)
 	{
 	case KEY_1:
@@ -253,6 +205,9 @@ void sendIr(int key)
 	case KEY_OK:
 		IR_read(KEY_ADDR_12);
 		break;
+	case KEY_CLEAR:
+		IR_read(KEY_ADDR_13);
+		break;
 	default:
 		break;
 	}
@@ -263,44 +218,90 @@ void ir(void)
 {
 	int key = -1, lastKey = -1;
 	int i = 0;
+	u8 wantPowerOff = 0, wantClone = 0, pwdOk = 0;
 
-#if !NO_18B20
-	printTemp();
-#endif
 	IR_init();
 	while (1)
 	{
 		if (IR_isStudy())
 		{
+			char buf[32];
 			LCD_drawString(0, 20, IR_getProto(), 12, 1, 1);
+			sprintf(buf, "RECV  %d         ", IR_getDatalen());
+			LCD_drawString(0, 0, buf, 16, 1, 1);
 		}
 		key = keyScan();
 		if (key != -1 && key != lastKey)
 		{
 			//lastKey = key; //连按
 			LedBlue(i++ % 2);
-			if (key == KEY_POWER)
+			if (key == KEY_POWER && isPowerOn)
 			{
-				if (isPowerOn)
+				wantPowerOff = 1;
+				showString("Power OFF?");
+			}
+			else if (wantPowerOff)
+			{
+				if (key == KEY_CANCEL)
 				{
-					// powerOff();
+					wantPowerOff = 0;
+					showString("ready");
+				}
+				else if (key == KEY_OK)
+				{
+					powerOff();
 				}
 			}
-			else if (key == KEY_BT)
+			else if (wantClone)
 			{
-#if !NO_18B20
-				printTemp();
-#else
-				IR_SendData();
-#endif
+				if (key == KEY_CANCEL)
+				{
+					wantClone = 0;
+					showString("ready");
+					goto next;
+				}
+				else if (wantClone == 1) // 第1位密码
+				{
+					if (key != KEY_2)
+						pwdOk = 0;
+					LCD_drawString(0, 20, "*              ", 12, 1, 1);
+				}
+				else if (wantClone == 2)
+				{
+					if (key != KEY_0)
+						pwdOk = 0;
+					LCD_drawString(0, 20, "**             ", 12, 1, 1);
+				}
+				else if (wantClone == 3)
+				{
+					if (key != KEY_1)
+						pwdOk = 0;
+					LCD_drawString(0, 20, "***            ", 12, 1, 1);
+				}
+				else
+				{
+					wantClone = 0;
+					if (pwdOk && key == KEY_9)
+					{
+						IR_recvEnable(1); //打开学习
+						LCD_drawString(0, 0, "RECV            ", 16, 1, 1);
+					}
+					else
+					{
+						LCD_drawString(0, 20, "pwd err!       ", 12, 1, 1);
+						delayms(3000);
+						showString("ready");
+					}
+					goto next;
+				}
+				wantClone++;
 			}
 			else if (IR_isStudy())
-			{ //学习状态
-				if (key == KEY_CLEAR)
+			{
+				if (key == KEY_BT)
 				{
 					IR_recvEnable(0); //关闭学习
 					IR_write();
-					//LCD_clearLine(0, 16, 0, 1);
 					LCD_drawString(0, 0, "SEND            ", 16, 1, 1);
 				}
 				else
@@ -309,19 +310,19 @@ void ir(void)
 				}
 			}
 			else
-			{ //发射状态
-				if (key == KEY_CLEAR)
+			{
+				if (key == KEY_BT)
 				{
-					IR_recvEnable(1); //打开学习
-					//LCD_clearLine(0, 16, 0, 1);
-					LCD_drawString(0, 0, "RECV            ", 16, 1, 1);
+					wantClone = 1;
+					pwdOk = 1; // 假设输入的密码正确
+					showString("input clone pwd:");
 				}
 				else
 				{
 					sendIr(key);
 				}
 			}
-			//doKey(key);
+		next:
 			delayms(300);
 		}
 	}
@@ -335,31 +336,32 @@ int main(void)
        To reconfigure the default setting of SystemInit() function, refer to
         system_stm32f2xx.c file
      */
+	int i;
 
-	delay_init();
 	USART_Configuration();
-	printf("helloworld %s  %s\r\n", __DATE__, __TIME__);
-
+	delay_init();
+	LedInit();
+	LCD_init();
 	keyInit();
+
+	printf(" helloworld %s  %s\r\n", __DATE__, __TIME__);
+	showString("IRremote!");
+
 	//按电源键，电池开机
-	powerOn();
 	isPowerOn = 0;
-	while (keyScan() == KEY_POWER)
+	for (i = 0; i < 100; i++)
 	{
-		isPowerOn = 1;
+		if (keyScan() == KEY_POWER)
+		{
+			isPowerOn = 1;
+			powerOn();
+			printf("power on\r\n");
+		}
 	}
 	if (isPowerOn)
-	{
 		powerOn();
-	}
 	else
-	{
 		powerOff();
-	}
-
-	LCD_init();
-	LedInit();
-	showString("IRremote!");
 
 	ir(); //红外学习遥控器
 }
@@ -591,7 +593,7 @@ void testLcd()
 	}
 }
 
-void testIO()
+void testIO(void)
 {
 	//全闪
 	int i;
@@ -655,3 +657,55 @@ void test24()
 		;
 }
 #endif
+
+void doKey(int key)
+{
+	switch (key)
+	{
+	case 10: //电源
+		break;
+	case 5: //	清除
+		powerOff();
+		break;
+	case 1: //	确认
+		// show(saohui, 6);
+		beep();
+		break;
+	case 0: //	蓝牙键
+#if !NO_18B20
+		printTemp();
+#endif
+		break;
+	case 14: //	取消
+		break;
+	case 3: //	0
+		break;
+	case 9: //	1
+		LedRed(0);
+		break;
+	case 4: //	2
+		LedRed(1);
+		break;
+	case 6: //	3
+		LedBlue(0);
+		break;
+	case 8: //	4
+		LedBlue(1);
+		break;
+	case 13: //	5
+		LedYellow(0);
+		break;
+	case 12: //	6
+		LedYellow(1);
+		break;
+	case 2: //	7
+		LedLcd(0);
+		break;
+	case 7: //	8
+		LedLcd(1);
+		break;
+	case 15: //	9
+		testLcd();
+		break;
+	}
+}

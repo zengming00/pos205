@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stm32f2xx.h>
 #include "systick.h"
 #include "fmc.h"
@@ -17,6 +18,7 @@ u16 PulseTab[PULSETABSIZE] = {3800, 1488, 516, 1260, 516, 1260, 516, 526, 516, 5
 //ºìÍâÊý¾Ý
 u16 irDatas[IR_DATA_SIZE];
 u8 isStudy;
+u16 dataLen;
 
 #ifdef ENABLE_IR_RECV
 
@@ -118,7 +120,7 @@ void EXTI9_5_IRQHandler(void)
 		}
 		/* Clear the EXTI line 15 pending bit */
 		EXTI_ClearITPendingBit(EXTI_Line9);
-		printf("EXTI9 I=%d\r\n", i);
+		dataLen = i;
 	}
 }
 
@@ -204,6 +206,11 @@ char *IR_getProto(void)
 	}
 }
 
+u16 IR_getDatalen(void)
+{
+	return dataLen;
+}
+
 void IR_clearRecvData(void)
 {
 	int i;
@@ -252,9 +259,40 @@ void IR_save(uint32_t WriteAddr)
 	IR_clearRecvData();
 }
 
+void sendData(u16 arr[])
+{
+	int i;
+	printf("arr=[");
+	for (i = 0; i < PULSETABSIZE; i++)
+	{
+		if (i == 0)
+		{
+			printf("%d", arr[i]);
+		}
+		else
+		{
+			printf(", %d", arr[i]);
+		}
+	}
+	printf("]\r\n");
+	for (i = 0; i < PULSETABSIZE / 2; i++)
+	{
+		if ((arr[2 * i] != 0) && (arr[2 * i + 1] != 0))
+		{
+			GPIO_SetBits(GPIOC, GPIO_Pin_6);
+			delay_us(arr[2 * i]);
+			GPIO_ResetBits(GPIOC, GPIO_Pin_6);
+			delay_us(arr[2 * i + 1]);
+		}
+	}
+	GPIO_SetBits(GPIOC, GPIO_Pin_6);
+	delay_us(555);
+	GPIO_ResetBits(GPIOC, GPIO_Pin_6);
+}
+
 void IR_read(uint32_t ReadAddr)
 {
-	u16 i, v1, v2;
+	u16 i, v;
 
 	if (isStudy)
 	{
@@ -274,22 +312,23 @@ void IR_read(uint32_t ReadAddr)
 	}
 	printf("] %d\r\n", i);
 
+	// sendData(&irDatas[ReadAddr]);
 	for (i = 0; i < PULSETABSIZE; i++)
 	{
-		v1 = irDatas[i + ReadAddr];
-		if (v1 != 0 && v1 != 0xffff)
+		v = irDatas[i + ReadAddr];
+		if (v != 0 && v != 0xffff)
 		{
 			GPIO_SetBits(GPIOC, GPIO_Pin_6);
-			delay_us(v1);
+			delay_us(v);
 		}
 
 		i++;
 
-		v2 = irDatas[i + ReadAddr];
-		if (v2 != 0 && v2 != 0xffff)
+		v = irDatas[i + ReadAddr];
+		if (v != 0 && v != 0xffff)
 		{
 			GPIO_ResetBits(GPIOC, GPIO_Pin_6);
-			delay_us(v2);
+			delay_us(v);
 		}
 	}
 	GPIO_SetBits(GPIOC, GPIO_Pin_6);
@@ -299,7 +338,7 @@ void IR_read(uint32_t ReadAddr)
 
 void IR_SendData(void)
 {
-	u16 i, v1, v2;
+	int i;
 	if (isStudy)
 	{
 		return;
@@ -319,22 +358,30 @@ void IR_SendData(void)
 	}
 	printf("] %d\r\n", i);
 
-	for (i = 0; i < PULSETABSIZE; i++)
+	// for (i = 0; i < PULSETABSIZE; i++)
+	// {
+	// 	if (PulseTab[i] != 0 && PulseTab[i] != 0xffff)
+	// 	{
+	// 		GPIO_SetBits(GPIOC, GPIO_Pin_6);
+	// 		delay_us(PulseTab[i]);
+	// 	}
+
+	// 	i++;
+
+	// 	if (PulseTab[i] != 0 && PulseTab[i] != 0xffff)
+	// 	{
+	// 		GPIO_ResetBits(GPIOC, GPIO_Pin_6);
+	// 		delay_us(PulseTab[i]);
+	// 	}
+	// }
+	for (i = 0; i < PULSETABSIZE / 2; i++)
 	{
-		v1 = PulseTab[i];
-		if (v1 != 0 && v1 != 0xffff)
+		if ((PulseTab[2 * i] != 0) && (PulseTab[2 * i + 1] != 0))
 		{
 			GPIO_SetBits(GPIOC, GPIO_Pin_6);
-			delay_us(v1);
-		}
-
-		i++;
-
-		v2 = PulseTab[i];
-		if (v2 != 0 && v2 != 0xffff)
-		{
+			delay_us(PulseTab[2 * i]);
 			GPIO_ResetBits(GPIOC, GPIO_Pin_6);
-			delay_us(v2);
+			delay_us(PulseTab[2 * i + 1]);
 		}
 	}
 	GPIO_SetBits(GPIOC, GPIO_Pin_6);

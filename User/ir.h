@@ -22,6 +22,7 @@
 
 void IR_init(void);
 char* IR_getProto(void);
+u16 IR_getDatalen(void);
 void IR_clearRecvData(void);
 void IR_recvEnable(u8 v);
 u8 IR_isStudy(void);
