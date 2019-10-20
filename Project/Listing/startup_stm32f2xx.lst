@@ -849,7 +849,7 @@ Command Line: --debug --xref --cpu=Cortex-M3 --apcs=interwork --depend=.\Output
 ARM Macro Assembler    Page 14 
 
 
-\startup_stm32f2xx.d -o.\Output\startup_stm32f2xx.o -IC:\Keil\ARM\INC -IC:\Keil
+\startup_stm32f2xx.d -o.\Output\startup_stm32f2xx.o -Id:\Keil\ARM\INC -Id:\Keil
 \ARM\INC\ST\STM32F2xx --predefine="__EVAL SETA 1" --list=.\Listing\startup_stm3
 2f2xx.lst ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F2xx\startup\arm\startup
 _stm32f2xx.s
@@ -2289,4 +2289,4 @@ rtup\arm\startup_stm32f2xx.s
       None
 Comment: __use_two_region_memory unused
 3 symbols
-438 symbols in table
+439 symbols in table

@@ -451,6 +451,11 @@
               <FileType>1</FileType>
               <FilePath>..\User\fmc.c</FilePath>
             </File>
+            <File>
+              <FileName>ir.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\ir.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1094,6 +1099,11 @@
               <FileName>fmc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\fmc.c</FilePath>
+            </File>
+            <File>
+              <FileName>ir.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\ir.c</FilePath>
             </File>
           </Files>
         </Group>

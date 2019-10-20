@@ -2,8 +2,8 @@
 #define __IR__H_
 
 
-#define PULSETABSIZE 200
-#define IR_DATA_SIZE PULSETABSIZE*12 //12¸ö°´¼ü
+#define PULSETABSIZE 500
+#define IR_DATA_SIZE (PULSETABSIZE*13)
 
 #define KEY_ADDR_1 (PULSETABSIZE*0)
 #define KEY_ADDR_2 (PULSETABSIZE*1)
@@ -17,6 +17,7 @@
 #define KEY_ADDR_10 (PULSETABSIZE*9)
 #define KEY_ADDR_11 (PULSETABSIZE*10)
 #define KEY_ADDR_12 (PULSETABSIZE*11)
+#define KEY_ADDR_13 (PULSETABSIZE*12)
 
 
 void IR_init(void);
@@ -27,6 +28,7 @@ u8 IR_isStudy(void);
 void IR_save(uint32_t WriteAddr);
 void IR_read(uint32_t ReadAddr);
 void IR_write(void);
+void IR_SendData(void);
 
 #endif
 

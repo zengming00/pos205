@@ -1,31 +1,39 @@
+#define NO_18B20 1
+#define NO_24cxx 1
+
 #include "stm32f2xx.h"
 #include "usart.h"
-#include "18B20.h"
 #include "systick.h"
 #include "io.h"
 #include "key.h"
-#include "temp.h"
 #include "lcd12832.h"
-#include "24cxx.h"
 #include "fmc.h"
 #include "ir.h"
+
+#if !NO_18B20
+#include "18B20.h"
+#include "temp.h"
+#endif
+
+#if !NO_24cxx
+#include "24cxx.h"
+#endif
 
 void Delay(__IO uint32_t nCount);
 void testLcd(void);
 
 char isPowerOn;
 
-unsigned char saohui[] =
-	{
+// unsigned char saohui[] = {
 
-		0x00, 0x00, 0x1F, 0x92, 0x52, 0x32, 0x12, 0x1F, 0x12, 0x32, 0x52, 0x92, 0x1F, 0x00, 0x00, 0x00, 0x08, 0x08, 0xC8, 0x48, 0x48, 0x48, 0x48, 0xFF, 0x48, 0x48, 0x48, 0x48, 0xC8, 0x08, 0x08, 0x00, /*"单",0*/
-		0x00, 0x00, 0x00, 0x7F, 0x04, 0x04, 0x04, 0x04, 0x04, 0xFC, 0x04, 0x04, 0x04, 0x04, 0x00, 0x00, 0x00, 0x01, 0x06, 0xF8, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x7F, 0x00, 0x00, 0x00, 0x00, 0x00, /*"片",1*/
-		0x08, 0x08, 0x0B, 0xFF, 0x09, 0x08, 0x00, 0x7F, 0x40, 0x40, 0x40, 0x7F, 0x00, 0x00, 0x00, 0x00, 0x20, 0xC0, 0x00, 0xFF, 0x00, 0xC1, 0x06, 0xF8, 0x00, 0x00, 0x00, 0xFC, 0x02, 0x02, 0x1E, 0x00, /*"机",2*/
-		0x00, 0x00, 0x47, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x7F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFC, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x1E, 0x00, 0x00, /*"已",3*/
-		0x0F, 0x00, 0xFF, 0x04, 0x08, 0x00, 0x11, 0x11, 0xF2, 0x1A, 0x24, 0x2A, 0x21, 0x27, 0x00, 0x00, 0x01, 0x0E, 0xF0, 0x08, 0x04, 0x41, 0x42, 0x4C, 0x70, 0x40, 0x40, 0x7C, 0x42, 0x42, 0x4E, 0x00, /*"烧",4*/
-		0x7F, 0x49, 0x89, 0x01, 0x49, 0x49, 0x7F, 0x00, 0x05, 0x79, 0x41, 0x41, 0x79, 0x05, 0x04, 0x00, 0x22, 0x23, 0x22, 0x3E, 0x24, 0x24, 0x24, 0x01, 0x01, 0xC2, 0x34, 0x08, 0x34, 0xC2, 0x01, 0x00, /*"毁",5*/
+// 	0x00, 0x00, 0x1F, 0x92, 0x52, 0x32, 0x12, 0x1F, 0x12, 0x32, 0x52, 0x92, 0x1F, 0x00, 0x00, 0x00, 0x08, 0x08, 0xC8, 0x48, 0x48, 0x48, 0x48, 0xFF, 0x48, 0x48, 0x48, 0x48, 0xC8, 0x08, 0x08, 0x00, /*"单",0*/
+// 	0x00, 0x00, 0x00, 0x7F, 0x04, 0x04, 0x04, 0x04, 0x04, 0xFC, 0x04, 0x04, 0x04, 0x04, 0x00, 0x00, 0x00, 0x01, 0x06, 0xF8, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x7F, 0x00, 0x00, 0x00, 0x00, 0x00, /*"片",1*/
+// 	0x08, 0x08, 0x0B, 0xFF, 0x09, 0x08, 0x00, 0x7F, 0x40, 0x40, 0x40, 0x7F, 0x00, 0x00, 0x00, 0x00, 0x20, 0xC0, 0x00, 0xFF, 0x00, 0xC1, 0x06, 0xF8, 0x00, 0x00, 0x00, 0xFC, 0x02, 0x02, 0x1E, 0x00, /*"机",2*/
+// 	0x00, 0x00, 0x47, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x7F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFC, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x1E, 0x00, 0x00, /*"已",3*/
+// 	0x0F, 0x00, 0xFF, 0x04, 0x08, 0x00, 0x11, 0x11, 0xF2, 0x1A, 0x24, 0x2A, 0x21, 0x27, 0x00, 0x00, 0x01, 0x0E, 0xF0, 0x08, 0x04, 0x41, 0x42, 0x4C, 0x70, 0x40, 0x40, 0x7C, 0x42, 0x42, 0x4E, 0x00, /*"烧",4*/
+// 	0x7F, 0x49, 0x89, 0x01, 0x49, 0x49, 0x7F, 0x00, 0x05, 0x79, 0x41, 0x41, 0x79, 0x05, 0x04, 0x00, 0x22, 0x23, 0x22, 0x3E, 0x24, 0x24, 0x24, 0x01, 0x01, 0xC2, 0x34, 0x08, 0x34, 0xC2, 0x01, 0x00, /*"毁",5*/
 
-};
+// };
 
 void showString(char *str)
 {
@@ -33,6 +41,7 @@ void showString(char *str)
 	LCD_drawString(0, 0, str, 16, 1, 1);
 }
 
+#if !NO_18B20
 void printTemp()
 {
 	short temp;
@@ -62,6 +71,8 @@ void printTemp()
 		showString("18B20 Failed!");
 	}
 }
+#endif
+
 void show(unsigned char *arr, int num)
 {
 	LCD_clearAll();
@@ -91,10 +102,12 @@ void beep()
 		delayms(1000);
 	}
 }
+
 void powerOff()
 {
 	gpioOut(RCC_AHB1Periph_GPIOA, GPIOA, GPIO_Pin_2, 0);
 }
+
 void powerOn()
 {
 	gpioOut(RCC_AHB1Periph_GPIOA, GPIOA, GPIO_Pin_2, 1);
@@ -110,11 +123,13 @@ void doKey(int key)
 		powerOff();
 		break;
 	case 1: //	确认
-		show(saohui, 6);
+		// show(saohui, 6);
 		beep();
 		break;
 	case 0: //	蓝牙键
+#if !NO_18B20
 		printTemp();
+#endif
 		break;
 	case 14: //	取消
 		break;
@@ -149,12 +164,109 @@ void doKey(int key)
 		break;
 	}
 }
+
+void saveIr(int key)
+{
+	LCD_drawString(0, 20, "save           ", 12, 1, 1);
+	switch (key)
+	{
+	case KEY_1:
+		IR_save(KEY_ADDR_1);
+		break;
+	case KEY_2:
+		IR_save(KEY_ADDR_2);
+		break;
+	case KEY_3:
+		IR_save(KEY_ADDR_3);
+		break;
+	case KEY_4:
+		IR_save(KEY_ADDR_4);
+		break;
+	case KEY_5:
+		IR_save(KEY_ADDR_5);
+		break;
+	case KEY_6:
+		IR_save(KEY_ADDR_6);
+		break;
+	case KEY_7:
+		IR_save(KEY_ADDR_7);
+		break;
+	case KEY_8:
+		IR_save(KEY_ADDR_8);
+		break;
+	case KEY_9:
+		IR_save(KEY_ADDR_9);
+		break;
+	case KEY_CANCEL:
+		IR_save(KEY_ADDR_10);
+		break;
+	case KEY_0:
+		IR_save(KEY_ADDR_11);
+		break;
+	case KEY_OK:
+		IR_save(KEY_ADDR_12);
+		break;
+	default:
+		break;
+	}
+	LCD_drawString(0, 20, "save     ok!   ", 12, 1, 1);
+}
+
+void sendIr(int key)
+{
+	LCD_drawString(0, 20, "send           ", 12, 1, 1);
+	switch (key)
+	{
+	case KEY_1:
+		IR_read(KEY_ADDR_1);
+		break;
+	case KEY_2:
+		IR_read(KEY_ADDR_2);
+		break;
+	case KEY_3:
+		IR_read(KEY_ADDR_3);
+		break;
+	case KEY_4:
+		IR_read(KEY_ADDR_4);
+		break;
+	case KEY_5:
+		IR_read(KEY_ADDR_5);
+		break;
+	case KEY_6:
+		IR_read(KEY_ADDR_6);
+		break;
+	case KEY_7:
+		IR_read(KEY_ADDR_7);
+		break;
+	case KEY_8:
+		IR_read(KEY_ADDR_8);
+		break;
+	case KEY_9:
+		IR_read(KEY_ADDR_9);
+		break;
+	case KEY_CANCEL:
+		IR_read(KEY_ADDR_10);
+		break;
+	case KEY_0:
+		IR_read(KEY_ADDR_11);
+		break;
+	case KEY_OK:
+		IR_read(KEY_ADDR_12);
+		break;
+	default:
+		break;
+	}
+	LCD_drawString(0, 20, "send  ok       ", 12, 1, 1);
+}
+
 void ir(void)
 {
 	int key = -1, lastKey = -1;
 	int i = 0;
 
+#if !NO_18B20
 	printTemp();
+#endif
 	IR_init();
 	while (1)
 	{
@@ -171,12 +283,16 @@ void ir(void)
 			{
 				if (isPowerOn)
 				{
-					powerOff();
+					// powerOff();
 				}
 			}
 			else if (key == KEY_BT)
 			{
+#if !NO_18B20
 				printTemp();
+#else
+				IR_SendData();
+#endif
 			}
 			else if (IR_isStudy())
 			{ //学习状态
@@ -189,49 +305,7 @@ void ir(void)
 				}
 				else
 				{
-					LCD_drawString(0, 20, "save           ", 12, 1, 1);
-					switch (key)
-					{
-					case KEY_1:
-						IR_save(KEY_ADDR_1);
-						break;
-					case KEY_2:
-						IR_save(KEY_ADDR_2);
-						break;
-					case KEY_3:
-						IR_save(KEY_ADDR_3);
-						break;
-					case KEY_4:
-						IR_save(KEY_ADDR_4);
-						break;
-					case KEY_5:
-						IR_save(KEY_ADDR_5);
-						break;
-					case KEY_6:
-						IR_save(KEY_ADDR_6);
-						break;
-					case KEY_7:
-						IR_save(KEY_ADDR_7);
-						break;
-					case KEY_8:
-						IR_save(KEY_ADDR_8);
-						break;
-					case KEY_9:
-						IR_save(KEY_ADDR_9);
-						break;
-					case KEY_CANCEL:
-						IR_save(KEY_ADDR_10);
-						break;
-					case KEY_0:
-						IR_save(KEY_ADDR_11);
-						break;
-					case KEY_OK:
-						IR_save(KEY_ADDR_12);
-						break;
-					default:
-						break;
-					}
-					LCD_drawString(0, 20, "save     ok!   ", 12, 1, 1);
+					saveIr(key);
 				}
 			}
 			else
@@ -244,115 +318,13 @@ void ir(void)
 				}
 				else
 				{
-					LCD_drawString(0, 20, "send           ", 12, 1, 1);
-					switch (key)
-					{
-					case KEY_1:
-						IR_read(KEY_ADDR_1);
-						break;
-					case KEY_2:
-						IR_read(KEY_ADDR_2);
-						break;
-					case KEY_3:
-						IR_read(KEY_ADDR_3);
-						break;
-					case KEY_4:
-						IR_read(KEY_ADDR_4);
-						break;
-					case KEY_5:
-						IR_read(KEY_ADDR_5);
-						break;
-					case KEY_6:
-						IR_read(KEY_ADDR_6);
-						break;
-					case KEY_7:
-						IR_read(KEY_ADDR_7);
-						break;
-					case KEY_8:
-						IR_read(KEY_ADDR_8);
-						break;
-					case KEY_9:
-						IR_read(KEY_ADDR_9);
-						break;
-					case KEY_CANCEL:
-						IR_read(KEY_ADDR_10);
-						break;
-					case KEY_0:
-						IR_read(KEY_ADDR_11);
-						break;
-					case KEY_OK:
-						IR_read(KEY_ADDR_12);
-						break;
-					default:
-						break;
-					}
-					LCD_drawString(0, 20, "send  ok       ", 12, 1, 1);
+					sendIr(key);
 				}
 			}
 			//doKey(key);
 			delayms(300);
 		}
 	}
-}
-//   if(0){//全闪
-//   		int i;
-//   		GPIO_InitTypeDef  GPIO_InitStructure;
-//		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All;
-//		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-//		GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-//		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-//		GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-//
-//		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-//		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-//		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-//		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
-//
-//		GPIO_Init(GPIOA, &GPIO_InitStructure);
-//		GPIO_Init(GPIOB, &GPIO_InitStructure);
-//		GPIO_Init(GPIOC, &GPIO_InitStructure);
-//		GPIO_Init(GPIOD, &GPIO_InitStructure);
-//   		while(1){
-//			  GPIOA->ODR ^= GPIO_Pin_All;
-//			  GPIOB->ODR ^= GPIO_Pin_All;
-//			  GPIOC->ODR ^= GPIO_Pin_All;
-//			  GPIOD->ODR ^= GPIO_Pin_All;
-//			  //delayms(1000);
-//			  for(i=0; i<0x00ffffff; i++){
-//			  }
-//		}
-//   }
-
-void test24()
-{
-#if 0
-   {
-	   u8 data = 0x12;
-	   char buf[32];
-	   u8 s;
-	   
-	   LCD_init();
-	   //AT24CXX_Init();
-	   IIC2_Init();
-	   
-	   for(data=0; data<255; data++){
-			if(IRcvStr(0xa0, 0, &s, 1)){
-//			   sprintf(buf, "r1=%d,%d", AT24CXX_ReadOneByte(data), data);
-			   sprintf(buf, "r1=%d,%d", s, data);
-				showString(buf);
-				delayms(100);
-			}
-		}
-		
-	   AT24CXX_WriteOneByte(0,data);
-
-	   sprintf(buf, "r2=%d", AT24CXX_ReadOneByte(0));
-		showString(buf);
-		delayms(10000);
-	
-	   while(1);
-   }
-#endif
 }
 
 int main(void)
@@ -368,100 +340,30 @@ int main(void)
 	USART_Configuration();
 	printf("helloworld %s  %s\r\n", __DATE__, __TIME__);
 
-	if (1)
+	keyInit();
+	//按电源键，电池开机
+	powerOn();
+	isPowerOn = 0;
+	while (keyScan() == KEY_POWER)
 	{
-		int i = 0;
-		int key = -1, lastKey = -1;
-		char buf[32];
-
-		keyInit();
-		//按电源键，电池开机
-		powerOn();
-		isPowerOn = 0;
-		while (keyScan() == 10)
-		{
-			isPowerOn = 1;
-		}
-		if (isPowerOn)
-		{
-			powerOn();
-		}
-		else
-		{
-			powerOff();
-		}
-
-		LCD_init();
-		LedInit();
-		showString("helloworld!");
-
-		ir(); //红外学习遥控器
-
-		while (1)
-		{
-			key = keyScan();
-			if (key != -1 && key != lastKey)
-			{
-				lastKey = key;
-
-				switch (key)
-				{
-				case 5:
-					sprintf(buf, "clear code:%d", key);
-					break;
-				case 1:
-					sprintf(buf, "ok code:%d", key);
-					break;
-				case 0:
-					sprintf(buf, "BT code:%d", key);
-					break;
-				case 10:
-					sprintf(buf, "power code:%d", key);
-					break;
-				case 14:
-					sprintf(buf, "cancel code:%d", key);
-					break;
-				case 3:
-					sprintf(buf, "0 code:%d", key);
-					break;
-				case 9:
-					sprintf(buf, "1 code:%d", key);
-					break;
-				case 4:
-					sprintf(buf, "2 code:%d", key);
-					break;
-				case 6:
-					sprintf(buf, "3 code:%d", key);
-					break;
-				case 8:
-					sprintf(buf, "4 code:%d", key);
-					break;
-				case 13:
-					sprintf(buf, "5 code:%d", key);
-					break;
-				case 12:
-					sprintf(buf, "6 code:%d", key);
-					break;
-				case 2:
-					sprintf(buf, "7 code:%d", key);
-					break;
-				case 7:
-					sprintf(buf, "8 code:%d", key);
-					break;
-				case 15:
-					sprintf(buf, "9 code:%d", key);
-					break;
-				default:
-					sprintf(buf, "err code:%d", key);
-					break;
-				}
-				showString(buf);
-				doKey(key);
-			}
-			//	delayms(500);
-		}
+		isPowerOn = 1;
 	}
+	if (isPowerOn)
+	{
+		powerOn();
+	}
+	else
+	{
+		powerOff();
+	}
+
+	LCD_init();
+	LedInit();
+	showString("IRremote!");
+
+	ir(); //红外学习遥控器
 }
+
 /**
   * @brief  Delay Function.
   * @param  nCount:specifies the Delay time length.
@@ -501,8 +403,8 @@ void testLcd()
 
 	//中文字符
 	LCD_clearAll();
-	LCD_showCnString(saohui, 1, 6);
-	delayms(2000);
+	// LCD_showCnString(saohui, 1, 6);
+	// delayms(2000);
 
 	//向下滚动
 	for (i = 0; i <= 63; i++)
@@ -688,3 +590,68 @@ void testLcd()
 		}
 	}
 }
+
+void testIO()
+{
+	//全闪
+	int i;
+	GPIO_InitTypeDef GPIO_InitStructure;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_Init(GPIOC, &GPIO_InitStructure);
+	GPIO_Init(GPIOD, &GPIO_InitStructure);
+	while (1)
+	{
+		GPIOA->ODR ^= GPIO_Pin_All;
+		GPIOB->ODR ^= GPIO_Pin_All;
+		GPIOC->ODR ^= GPIO_Pin_All;
+		GPIOD->ODR ^= GPIO_Pin_All;
+		for (i = 0; i < 0x00ffffff; i++)
+		{
+		}
+	}
+}
+
+#if !NO_24cxx
+void test24()
+{
+	u8 data = 0x12;
+	char buf[32];
+	u8 s;
+
+	LCD_init();
+	//AT24CXX_Init();
+	IIC2_Init();
+
+	for (data = 0; data < 255; data++)
+	{
+		if (IRcvStr(0xa0, 0, &s, 1))
+		{
+			//			   sprintf(buf, "r1=%d,%d", AT24CXX_ReadOneByte(data), data);
+			sprintf(buf, "r1=%d,%d", s, data);
+			showString(buf);
+			delayms(100);
+		}
+	}
+
+	AT24CXX_WriteOneByte(0, data);
+
+	sprintf(buf, "r2=%d", AT24CXX_ReadOneByte(0));
+	showString(buf);
+	delayms(10000);
+
+	while (1)
+		;
+}
+#endif

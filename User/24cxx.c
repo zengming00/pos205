@@ -191,7 +191,10 @@ u8 AT24CXX_ReadOneByte(u8 ReadAddr)
 	tmp = IIC_Send_Byte(0XA1);           //进入接收模式			   
     temp=IIC_Read_Byte(0);		   
     IIC_Stop();//产生一个停止条件
-	WP_ON();	    
+	WP_ON();
+	if(0){
+		return tmp;
+	}	    
 	return temp;
 }
 //在AT24CXX指定地址写入一个数据
