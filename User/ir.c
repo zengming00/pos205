@@ -276,17 +276,21 @@ void IR_read(uint32_t ReadAddr)
 
 	for (i = 0; i < PULSETABSIZE; i++)
 	{
-		GPIO_SetBits(GPIOC, GPIO_Pin_6);
 		v1 = irDatas[i + ReadAddr];
 		if (v1 != 0 && v1 != 0xffff)
+		{
+			GPIO_SetBits(GPIOC, GPIO_Pin_6);
 			delay_us(v1);
+		}
 
 		i++;
 
 		v2 = irDatas[i + ReadAddr];
-		GPIO_ResetBits(GPIOC, GPIO_Pin_6);
 		if (v2 != 0 && v2 != 0xffff)
+		{
+			GPIO_ResetBits(GPIOC, GPIO_Pin_6);
 			delay_us(v2);
+		}
 	}
 	GPIO_SetBits(GPIOC, GPIO_Pin_6);
 	delay_us(555);
@@ -317,17 +321,21 @@ void IR_SendData(void)
 
 	for (i = 0; i < PULSETABSIZE; i++)
 	{
-		GPIO_SetBits(GPIOC, GPIO_Pin_6);
 		v1 = PulseTab[i];
 		if (v1 != 0 && v1 != 0xffff)
+		{
+			GPIO_SetBits(GPIOC, GPIO_Pin_6);
 			delay_us(v1);
+		}
 
 		i++;
 
-		GPIO_ResetBits(GPIOC, GPIO_Pin_6);
 		v2 = PulseTab[i];
 		if (v2 != 0 && v2 != 0xffff)
+		{
+			GPIO_ResetBits(GPIOC, GPIO_Pin_6);
 			delay_us(v2);
+		}
 	}
 	GPIO_SetBits(GPIOC, GPIO_Pin_6);
 	delay_us(555);
@@ -348,46 +356,3 @@ void IR_init(void)
 	//读取保存在FLASH中的按键数据
 	FMC_read((uint8_t *)irDatas, sizeof(irDatas));
 }
-
-/*
-#if 0
-void SendData(u8 SysNum, u8 KeyNum) 
-{ 
-	u8 i; 
-	u32 data = 0;
-//	u32 data = 0xED12BF40; 
-//	TIM2_PWM_Init(1895,0);	//72000/(1895+1) = 37.99K
-	data = ((~KeyNum & 0xFF)<<24) + ((KeyNum & 0xFF)<<16) + ((~SysNum & 0xff)<< 8) + SysNum;
-
-	LED4 = 0;
-//	TIM_Cmd(TIM2, ENABLE); 
-	delay_us(9000); 
-	LED4 = 1;
-//	TIM_Cmd(TIM2, DISABLE); 
-	delay_us(4500);
-	LED4 = 0;
-//	TIM_Cmd(TIM2, ENABLE); 	
-	
-	for(i=0; i<33; i++) 
-	{ 
-		delay_us(480);//480
-		LED4 = 1;
-//		TIM_Cmd(TIM2, DISABLE); 
-		
-		if(((data >> i) & 0x00000001) == 0) 
-		{   
-			delay_us(620);   //0.56ms 620
-		} 
-		else 
-		{  
-			delay_us(1690); //1.69ms 
-		} 
-		LED4 = 0;
-//		TIM_Cmd(TIM2, ENABLE); 
-	} 
-//	TIM_Cmd(TIM2, DISABLE); 
-	LED4=1;
-} 
-#endif
-
-*/
