@@ -2,6 +2,7 @@
     "files.encoding": "gbk",
     "files.associations": {
         "io.h": "c",
-        "systick.h": "c"
+        "systick.h": "c",
+        "fmc.h": "c"
     }
 }

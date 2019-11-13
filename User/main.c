@@ -217,7 +217,7 @@ void sendIr(int key)
 void ir(void)
 {
 	int key = -1, lastKey = -1;
-	int i = 0;
+	int i = 0, counter = 0;
 	u8 wantPowerOff = 0, wantClone = 0, pwdOk = 0;
 
 	IR_init();
@@ -324,7 +324,16 @@ void ir(void)
 			}
 		next:
 			delayms(300);
+			counter = 0;
 		}
+		if (counter > 60000 * 20) // 大约20秒，无操作自动关机
+		{
+			powerOff();
+		}
+		// if(counter%1000 == 0){
+		// 	printf("%d\n", counter);
+		// }
+		counter++;
 	}
 }
 
